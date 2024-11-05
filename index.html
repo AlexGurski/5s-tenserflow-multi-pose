@@ -1,0 +1,182 @@
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>5S Control</title>
+	<link rel="icon" href="./icon.png" type="image/x-icon"/>
+    <meta name="description"
+          content="5S Control monitoring solutions help you maximize equipment utilization while simultaneously enhancing your existing CCTV system."/>
+		  <meta property="og:title" content="5S Control - DEMO"/>
+          <meta property="og:type" content="website"  />
+          <meta property="og:url" content="https://5scontrol.com/" />
+          <meta property="og:image" content="https://github.com/AlexGurski/tenserflow-multi-pose/blob/main/css/nqr.png?raw=true"/>
+          <meta property="og:description" content=
+          '5S Control monitoring solutions help you maximize equipment utilization while simultaneously enhancing your existing CCTV system.'/>
+          <meta property="og:site_name" content="5S Control"/>
+          <meta property="og:image:width" content="1200"/>
+          <meta property="og:image:height" content="630" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+	<link rel="stylesheet" href="css/style.css">	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.0.0/video-js.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.0.0/video.min.js"></script>
+</head>
+
+<body>
+	<div class="wrap">
+		<div class="cube">
+		  <div class="front">
+			<img src="./css/icon.png" alt="qr" class="ic" id='ic'/>
+		  </div>
+		  <div class="back">
+			<img src="./css/icon.png" alt="qr" class="ic" id='ic'/>
+		  </div>
+		  <div class="top">
+			<img src="./css/tool.png" alt="qr" class="ic" id='ic'/>
+		  </div>
+		  <div class="bottom">
+			<img src="./css/safety.png" alt="qr" class="ic" id='ic'/>
+		  </div>
+		  <div class="left">
+			<img src="./css/idle.png" alt="qr" class="ic" id='ic'/>
+		  </div>
+		  <div class="right">
+			<img src="./css/staf.png" alt="qr" class="ic" id='ic'/>
+		  </div>
+		</div>
+	  </div>
+	  
+	  <div class="box"></div>
+	<div class="gh">
+	</div>
+	<div id="controls" style="display: none;">
+		<form method="GET">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-6">
+						<button type="button" id="source-camera" class="source-select btn btn-primary" data-source="camera" >WEBCAM</button>  
+						<button type="button" id="source-video" class="source-select btn btn-primary" data-source="video" >VIDEO</button>  
+						<button type="button" id="source-stream" class="source-select btn btn-primary" data-source="stream">STREAM (IPTV / m3u8)</button>
+					</div>
+					<div class="col-md-6">
+						<div class="input-group mb-2">
+					        <div class="input-group-prepend">
+					          <div class="input-group-text">
+					          	<span>MODEL</span>
+					          </div>
+					      	</div>
+					     	<select name="model" id="model_select" class="form-control d-inline-block">
+								<option value="MoveNetMultiPoseLightning">2D only (FAST) multipose / MoveNet</option>
+							</select>
+				     	</div>						
+					</div>
+				</div>
+			</div>
+		</form>	
+
+		<button id="btn_toggle_ai" class="btn btn-secondary">AI TRACKING ON/OFF</button>
+		<button id="btn_toggle_video" class="btn btn-secondary">VIDEO ON/OFF</button>			
+		<button id="btn_toggle_3d" class="btn btn-secondary">3D VIEW ON/OFF</button>
+		<button id="btn_toggle_debug" class="btn btn-secondary">DEBUG ON/OFF</button>
+
+		<div id="video_src_area" style="display:none" class="text-center mt-3">
+			<div class="container justify-content-center">
+				<form class="form-horizontal" onsubmit="return false;">
+					<div class="form-row justify-content-center">
+					  	<div class="col-10 text-right">
+					  		<div class="input-group mb-2">
+						        <div class="input-group-prepend">
+						          <div class="input-group-text">
+						          	<span id="video_src_prefix"></span>
+						          </div>
+						      	</div>
+					     	<input class="form-control" id="video_src" type="text" value="">
+					     	</div>
+					     </div>	
+					     <div class="col-auto">
+					      	<button id="btn_load_src" class="btn btn-primary">LOAD</button>
+					     </div>	
+					</div>
+				</form>	
+			</div>
+			<div class="mt-2 text-center">
+				<b>Tip:</b> click on "PLAY" icon to play or change video source URL and click "LOAD" button.
+			</div>
+		</div>
+	</div>
+	<button id="btn_toggle_controls" class="btn btn-primary">SHOW/HIDE CONTROLS</button>
+
+	<div class="mt-2 text-center" id="status"></div>
+
+	<div id="wrapper" class="container-fluid">		
+	  <canvas id="canvas"></canvas>
+	  <video id="video" class="video-js vjs-fluid vjs-default-skin" preload="metadata">
+	  	<source src="">
+	  </video>
+	  <div id="info_debug"></div>
+	  <div id="info_counter"></div>
+	</div>
+	<div id="view_3d"></div>
+
+	<!-- Load Tensor Flow -->
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+
+	<!-- Load three.js -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+	<!-- Load scatter-gl.js -->
+	<script src="https://cdn.jsdelivr.net/npm/scatter-gl@0.0.13/lib/scatter-gl.min.js"></script>
+
+	<!-- Load tracker.js and app.js-->
+	<script src="./js/app.js"></script>
+	<script src="./js/tracker.js"></script>
+	<script>
+
+		let source = 'camera'; // camera|video|stream		
+		let sourceVideo = '';
+		let defaultVideo = 'mp4/whatislove.mp4';
+		let defaultStream = 'https://multiplatform-f.akamaihd.net/i/multi/will/bunny/big_buck_bunny_,640x360_400,640x360_700,640x360_1000,950x540_1500,.f4v.csmil/master.m3u8';
+		let model = 'MoveNetMultiPoseLightning';
+		/*
+			^^^ available pre-defined models:
+				
+				- MoveNetSinglePoseLightning				
+				- MoveNetSinglePoseThunder
+				- MoveNetMultiPoseLightning
+				- PoseNetMobileNetV1
+				- PoseNetResNet50
+				- BlazePoseLite
+				- BlazePoseHeavy
+				- BlazePoseFull
+		 */
+
+		// initialize app
+		app.init();
+		
+		// initialize AI tracker model
+		tracker.setModel(model);
+		tracker.autofit = true; // enable auto resize/fit
+
+		// set-up hooks
+		tracker.on('statuschange', function(msg) {
+			app.updateStatus(msg);
+        });
+		tracker.on('beforeupdate', function(poses) {
+			app.updateDebug(poses);
+			app.updateCounter(poses);
+		});
+
+		// config		
+	    tracker.elCanvas = '#canvas';
+	    tracker.elVideo = '#video';
+	    tracker.el3D = '#view_3d';
+	    tracker.pointWidth = 6;
+    	tracker.pointRadius = 8;
+
+		// run predictions
+		tracker.run(source);
+	</script>
+</body>
+</html>
