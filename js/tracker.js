@@ -20,7 +20,7 @@ const tracker = {
     enableAI: true, // bool, enable or disable tracking
     enableVideo: true, // bool, enable or disable display original video on canvas on canvas
     enable3D: false, // bool, enable or disable 3D keypoints
-    pointWidth: 6, // width of line between points
+    pointWidth: 4, // width of line between points
     pointRadius: 8, // point circle radius
     minScore: 0.01, // minimum threshold for estimated point
     log: true, // bool, enable logging to console
@@ -1441,7 +1441,6 @@ const tracker = {
      */
     setModel: function(model) {
         switch (model) {
-
             case 'MoveNetMultiPoseLightning':
                 tracker.detectorModel = poseDetection.SupportedModels.MoveNet;
                 tracker.detectorConfig = {
@@ -1451,21 +1450,7 @@ const tracker = {
                     enableTracking: true,
                     trackerType: poseDetection.TrackerType.BoundingBox
                 }
-                tracker.minScore = 0.15;
-                break;
-
-                tracker.detectorModel = poseDetection.SupportedModels.PoseNet;
-                tracker.detectorConfig = {
-                    architecture: 'ResNet50',
-                    outputStride: 16,
-                    multiplier: 1.0,
-                    inputResolution: {
-                        width: 257,
-                        height: 200
-                    },
-                    quantBytes: 2
-                }
-                tracker.minScore = 0.5;
+                tracker.minScore = 0.01;
                 break;
         }
     },
